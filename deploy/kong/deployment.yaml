@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong
+  labels:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+    spec:
+      containers:
+        - name: kong
+          image: kong/kong-gateway:2.3.3.2-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["/docker-entrypoint.sh"]
+          args: ["kong", "docker-start", "-c", "/etc/kong/kong.conf", "-v"]
+          ports:
+          - name: http-admin
+            containerPort: 8001
+          - name: https-admin
+            containerPort: 8444
+          - name: http-proxy
+            containerPort: 8080
+          - name: http-traffic
+            containerPort: 80
+          - name: https-traffic
+            containerPort: 443
+          env: 
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /resources/kong.yml
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_PROXY_ACCESS_LOG
+              value: "/dev/stdout"
+            - name: KONG_ADMIN_ACCESS_LOG
+              value: "/dev/stdout"
+            - name: KONG_PROXY_ERROR_LOG
+              value: "/dev/stderr"
+            - name: KONG_ADMIN_ERROR_LOG
+              value: "/dev/stderr"
+            - name: KONG_ADMIN_LISTEN
+              value: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/kong/
+            - name: resourcesvolstorage
+              mountPath: /resources
+
+      volumes:
+        - name: config
+          configMap:
+            name: kong
+        - name: resourcesvolstorage
+          hostPath:
+            path: /tmp/config/kong/resources
+            type: Directory
