@@ -45,9 +45,15 @@ spec:
               value: "/dev/stderr"
             - name: KONG_ADMIN_LISTEN
               value: "0.0.0.0:8001, 0.0.0.0:8444 ssl"
+            - name: KONG_LUA_PACKAGE_PATH
+              value: /plugin/?.lua;;
+            - name: KONG_PLUGINS
+              value: bundled,policy
           volumeMounts:
             - name: config
               mountPath: /etc/kong/
+            - name: pluginvolstorage
+              mountPath: /plugin
             - name: resourcesvolstorage
               mountPath: /resources
 
@@ -58,4 +64,8 @@ spec:
         - name: resourcesvolstorage
           hostPath:
             path: /tmp/config/kong/resources
+            type: Directory
+        - name: pluginvolstorage
+          hostPath:
+            path: /tmp/plugin
             type: Directory

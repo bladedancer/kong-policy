@@ -35,8 +35,8 @@ services:
     paths:
     - /api/demo
     - /api/test
-  # plugins:
-  # - name: key-auth
+  plugins:
+  - name: policy
 
 
 
