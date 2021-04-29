@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: policyserver
+spec:
+  selector:
+    app: policyserver
+  ports:
+    - name: grpc-kong
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+  type: ClusterIP

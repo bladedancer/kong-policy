@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: policyserver
+  labels:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: policyserver
+  template:
+    metadata:
+      labels:
+        app: policyserver
+    spec:
+      containers:
+        - name: policyserver
+          image: bladedancer/kong-policyservice:latest
+          imagePullPolicy: IfNotPresent
+          command: ["/root/policyserver"]
+          args: []
+          ports:
+          - name: grpc
+            containerPort: 9000
+          env:
+            - name: PE_HOST
+              value: "0.0.0.0"
+            - name: PE_PORT
+              value: "9000"
+            - name: PE_LOGLEVEL
+              value: "debug"
+            - name: PE_KEY
+              value: /tls/tls.key
+            - name: PE_CERT
+              value: /tls/tls.crt
+          volumeMounts:
+            - name: tls
+              mountPath: /tls
+
+      volumes:
+        - name: tls
+          secret:
+            secretName: policyservice-tls
